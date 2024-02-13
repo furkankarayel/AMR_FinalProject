@@ -6,6 +6,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal, MoveBaseActionResul
 import actionlib
 import math
 from std_srvs.srv import Empty
+from sensor_msgs.msg import LaserScan
 
 class TurtleBot:
     def __init__(self,easy,hard):
@@ -17,7 +18,12 @@ class TurtleBot:
         self.selfpos_subscriber = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.callback_selfpos, queue_size=1)
         self.selfpos = PoseWithCovarianceStamped()
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        self.scan_subscriber = rospy.Subscriber('/scan', LaserScan, self.callback_scan, queue_size=1)
+        self.scan = LaserScan()
 
+
+    def callback_scan(self, msg):
+        self.scan = msg
 
     def callback_selfpos(self, msg):
         self.selfpos = msg
@@ -43,7 +49,7 @@ class TurtleBot:
         return currGoal
     
     def recovery(self): 
-        global scan
+        print('Recovery start')
 
         self.move_base.cancel_all_goals()
         rospy.loginfo("trying to fix")
@@ -59,7 +65,7 @@ class TurtleBot:
             freesport = 0
             for i in range(21):
                 
-                laser = scan.ranges[0 + i]
+                laser = self.scan.ranges[0 + i]
                 
 
                 if laser == 0 or laser > 0.40:
@@ -99,10 +105,13 @@ class TurtleBot:
                 return
 
     def navigate_points(self,goalArray):
+        count = 0
         while goalArray:
             currGoal = self.get_nearest_goal(goalArray)
             drive_to_goal = True
             retry_count = 0
+            count += 1
+            print('Array index: ', count)
 
             clearCostmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
 
@@ -130,9 +139,11 @@ class TurtleBot:
 
 
     def driveEasyGoals(self):
+        print('Easy Goals start')
         self.navigate_points(self.easyGoals)
 
     def driveHardGoals(self):
+        print('Hard Goals start')
         self.navigate_points(self.hardGoals)
 
 
@@ -140,7 +151,7 @@ class TurtleBot:
 if __name__ == '__main__':
     try:
         hardPositions = [
-            (1.7927051123065936, -0.48963289746345856),
+            (1.7992810527102268, -0.5384085236560651),
             (2.256541542162795, -1.2000623722725514),
             (2.6552557672937134, -1.3339251596473334),
             (3.09991381491737, -0.7898910926578544),
@@ -156,7 +167,10 @@ if __name__ == '__main__':
         ]
 
         bot = TurtleBot(easyPositions,hardPositions)
-        bot.driveEasyGoals()
         bot.driveHardGoals()
+        print(bot.hardGoals)
+        print(bot.easyGoals)
+        bot.driveEasyGoals()
+
     except rospy.ROSInterruptException:
         pass
