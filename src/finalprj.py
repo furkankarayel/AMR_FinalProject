@@ -57,6 +57,7 @@ class TurtleBot:
             currGoal = self.get_nearest_goal(goalArray)
             drive_to_goal = True
             retry_count = 0
+ 
 
             while drive_to_goal:
                 result = self.navigate_to_point(currGoal)
@@ -67,8 +68,8 @@ class TurtleBot:
                     self.remove_entry(goalArray,currGoal)
 
                 if result == 4: # goal cant be reached
-                    movebase_retrys += 1
-                    if movebase_retrys >= 2:
+                    retry_count += 1
+                    if retry_count >= 2:
                          print('recovery strategy needed here')
 
                 if retry_count >= 3: # cancel goal after 3 retries
