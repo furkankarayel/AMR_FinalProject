@@ -75,7 +75,7 @@ class TurtleBot:
                     drive_to_goal = False
                     self.remove_entry(goalArray,currGoal)
 
-                if len(easyGoals.goals) == 0:
+                if len(self.easyGoals) == 0:
                     return # no more positions in the list
 
 
