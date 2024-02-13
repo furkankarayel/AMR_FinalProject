@@ -3,6 +3,7 @@
 import rospy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from goal_publisher.msg import PointArray
 import actionlib
 import time
 import math
@@ -43,12 +44,40 @@ class TurtleBot:
         goal.target_pose.pose.orientation.w = 1.0
         self.move_base.send_goal(goal)
         self.move_base.wait_for_result()
+        result = self.move_base.get_state()
+
+    def remove_entry(self, array, entry):
+    for item in array:
+        if item == entry:
+            array.remove(item)
+            return
 
     def navigate_points(self,goalArray):
         while goalArray:
             currGoal = self.get_nearest_goal(goalArray)
-            self.navigate_to_point(currGoal)
-            time.sleep(3)  # Warte 3 Sekunden
+            drive_to_goal = True
+            retry_count = 0
+
+            while drive_to_goal:
+                self.navigate_to_point(currGoal)
+
+                if result == 3: # goal is reached
+                    rospy.sleep(1)
+                    drive_to_goal = False
+                    self.remove_entry(goalArray,currGoal)
+
+                if result == 4: # goal cant be reached
+                    movebase_retrys += 1
+                    if movebase_retrys >= 2:
+                         print('recovery strategy needed here')
+
+                if retry_count >= 3: # cancel goal after 3 retries
+                    drive_to_goal = False
+                    self.remove_entry(goalArray,currGoal)
+
+                if len(easyGoals.goals) == 0:
+                    return # no more positions in the list
+
 
     def driveEasyGoals(self):
         self.navigate_points(self.easyGoals)
