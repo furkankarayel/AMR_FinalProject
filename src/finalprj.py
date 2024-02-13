@@ -30,6 +30,8 @@ class TurtleBot:
             y = goal[1]
             newDist = math.sqrt((x - self.selfpos.pose.pose.position.x)**2 + (y - self.selfpos.pose.pose.position.y)**2)
             if dist > newDist:
+                print('New distance ', newDist)
+                print('Old distance: ', dist)
                 dist = newDist
                 currGoal = goal
 
@@ -46,6 +48,11 @@ class TurtleBot:
         result = self.move_base.get_state()
         return result
 
+    def remove_entry(self, array, entry):
+        for item in array:
+            if item == entry:
+                array.remove(item)
+                return
     def remove_entry(self, array, entry):
         for item in array:
             if item == entry:
