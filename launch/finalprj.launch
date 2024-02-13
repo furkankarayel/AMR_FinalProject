@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="cd_224252_finalprj" type="finalprj.py" name="cd_224252_finalproj" output="screen">
+  </node>
+</launch>
