@@ -83,6 +83,9 @@ class TurtleBot:
     def driveEasyGoals(self):
         self.navigate_points(self.easyGoals)
 
+    def driveHardGoals(self):
+        self.navigate_points(self.hardGoals)
+
 if __name__ == '__main__':
     try:
         hardPositions = [
@@ -103,5 +106,6 @@ if __name__ == '__main__':
 
         bot = TurtleBot(easyPositions,hardPositions)
         bot.driveEasyGoals()
+        bot.driveHardGoals()
     except rospy.ROSInterruptException:
         pass
