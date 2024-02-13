@@ -64,7 +64,8 @@ class TurtleBot:
             currGoal = self.get_nearest_goal(goalArray)
             drive_to_goal = True
             retry_count = 0
- 
+            
+            clearCostmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
 
             while drive_to_goal:
                 result = self.navigate_to_point(currGoal)
@@ -72,6 +73,7 @@ class TurtleBot:
                 if result == 3: # goal is reached
                     rospy.sleep(1)
                     drive_to_goal = False
+                    cleaŕCostmap()
                     self.remove_entry(goalArray,currGoal)
 
                 if result == 4: # goal cant be reached
