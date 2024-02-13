@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 
 import rospy
-from geometry_msgs.msg import PoseWithCovarianceStamped
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from geometry_msgs.msg import PoseWithCovarianceStamped, Twist
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal, MoveBaseActionResult
 import actionlib
-import time
 import math
-
+from std_srvs.srv import Empty
 
 class TurtleBot:
     def __init__(self,easy,hard):
@@ -17,6 +16,8 @@ class TurtleBot:
         self.move_base.wait_for_server(rospy.Duration(5))
         self.selfpos_subscriber = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.callback_selfpos, queue_size=1)
         self.selfpos = PoseWithCovarianceStamped()
+        self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+
 
     def callback_selfpos(self, msg):
         self.selfpos = msg
@@ -40,6 +41,45 @@ class TurtleBot:
                 currGoal = goal
 
         return currGoal
+    
+    def recovery(self): 
+        global scan
+
+        self.move_base.cancel_all_goals()
+        rospy.loginfo("trying to fix")
+        search = True 
+        count = Twist() 
+        count.linear.x = 0
+        count.angular.z = -0.4
+        self.publisher.publish(count)
+    
+   
+        while search:      
+            
+            freesport = 0
+            for i in range(21):
+                
+                laser = scan.ranges[0 + i]
+                
+
+                if laser == 0 or laser > 0.40:
+                    
+                    freesport += 1
+
+                if freesport >= 10:
+                    search = False
+                    break
+    
+        rospy.sleep(0.5)
+        count.linear.x = 0.2
+        count.angular.z = 0
+        self.publisher.publish(count)
+        rospy.sleep(1.5)
+        count.linear.x = 0
+        count.angular.z = 0
+        self.publisher.publish(count)
+
+
 
     def navigate_to_point(self, currGoal):
         goal = MoveBaseGoal()
@@ -57,18 +97,13 @@ class TurtleBot:
             if item == entry:
                 array.remove(item)
                 return
-    def remove_entry(self, array, entry):
-        for item in array:
-            if item == entry:
-                array.remove(item)
-                return
 
     def navigate_points(self,goalArray):
         while goalArray:
             currGoal = self.get_nearest_goal(goalArray)
             drive_to_goal = True
             retry_count = 0
-            
+
             clearCostmap = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
 
             while drive_to_goal:
@@ -77,13 +112,14 @@ class TurtleBot:
                 if result == 3: # goal is reached
                     rospy.sleep(1)
                     drive_to_goal = False
-                    cleaŕCostmap()
+                    clearCostmap()
                     self.remove_entry(goalArray,currGoal)
 
                 if result == 4: # goal cant be reached
                     retry_count += 1
                     if retry_count >= 2:
                          print('recovery strategy needed here')
+                         self.recovery()
 
                 if retry_count >= 3: # cancel goal after 3 retries
                     drive_to_goal = False
@@ -98,6 +134,8 @@ class TurtleBot:
 
     def driveHardGoals(self):
         self.navigate_points(self.hardGoals)
+
+
 
 if __name__ == '__main__':
     try:
