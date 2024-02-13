@@ -28,6 +28,10 @@ class TurtleBot:
         for goal in goalArray: 
             x = goal[0]
             y = goal[1]
+            print('Goal position x: ', x)
+            print('Goal position y: ', y)
+            print('Bot position x: ', self.selfpos.pose.pose.position.x)
+            print('Bot position y: ', self.selfpos.pose.pose.position.y)
             newDist = math.sqrt((x - self.selfpos.pose.pose.position.x)**2 + (y - self.selfpos.pose.pose.position.y)**2)
             if dist > newDist:
                 print('New distance ', newDist)
@@ -64,7 +68,6 @@ class TurtleBot:
             currGoal = self.get_nearest_goal(goalArray)
             drive_to_goal = True
             retry_count = 0
- 
 
             while drive_to_goal:
                 result = self.navigate_to_point(currGoal)
