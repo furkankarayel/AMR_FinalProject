@@ -5,6 +5,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import actionlib
 import time
+import math
 
 
 class TurtleBot:
@@ -20,7 +21,7 @@ class TurtleBot:
     def callback_selfpos(self, msg):
         self.selfpos = msg
 
-    def get_nearest_goal(goalArray):
+    def get_nearest_goal(self,goalArray):
         dist = float('inf')
         currGoal = None
 
@@ -45,11 +46,11 @@ class TurtleBot:
 
     def navigate_points(self,goalArray):
         while goalArray:
-            currGoal = get_nearest_goal(goalArray)
+            currGoal = self.get_nearest_goal(goalArray)
             self.navigate_to_point(currGoal)
             time.sleep(3)  # Warte 3 Sekunden
 
-    def easyGoals(self):
+    def driveEasyGoals(self):
         self.navigate_points(self.easyGoals)
 
 if __name__ == '__main__':
@@ -71,6 +72,6 @@ if __name__ == '__main__':
         ]
 
         bot = TurtleBot(easyPositions,hardPositions)
-        bot.easyGoals()
+        bot.driveEasyGoals()
     except rospy.ROSInterruptException:
         pass
