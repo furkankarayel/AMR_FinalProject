@@ -3,7 +3,6 @@
 import rospy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from goal_publisher.msg import PointArray
 import actionlib
 import time
 import math
@@ -45,6 +44,7 @@ class TurtleBot:
         self.move_base.send_goal(goal)
         self.move_base.wait_for_result()
         result = self.move_base.get_state()
+        return result
 
     def remove_entry(self, array, entry):
     for item in array:
@@ -59,7 +59,7 @@ class TurtleBot:
             retry_count = 0
 
             while drive_to_goal:
-                self.navigate_to_point(currGoal)
+                result = self.navigate_to_point(currGoal)
 
                 if result == 3: # goal is reached
                     rospy.sleep(1)
