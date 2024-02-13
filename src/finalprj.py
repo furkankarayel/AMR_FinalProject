@@ -47,10 +47,10 @@ class TurtleBot:
         return result
 
     def remove_entry(self, array, entry):
-    for item in array:
-        if item == entry:
-            array.remove(item)
-            return
+        for item in array:
+            if item == entry:
+                array.remove(item)
+                return
 
     def navigate_points(self,goalArray):
         while goalArray:
