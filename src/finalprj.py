@@ -140,7 +140,7 @@ class TurtleBot:
                     drive_to_goal = False
                     self.add_entry(self.skippedGoals,currGoal)
 
-                if len(self.goalArray) == 0:
+                if len(goalArray) == 0:
                     return # no more positions in the list
 
 
