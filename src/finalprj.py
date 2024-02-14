@@ -179,11 +179,11 @@ if __name__ == '__main__':
 
         bot = TurtleBot(easyPositions,hardPositions)
         bot.driveHardGoals()
-        if(bot.skippedGoals)
-        bot.driveSkippedGoals()
+        if(bot.skippedGoals):
+            bot.driveSkippedGoals()
         bot.driveEasyGoals()
-        if(bot.skippedGoals)
-        bot.driveSkippedGoals()
+        if(bot.skippedGoals):
+            bot.driveSkippedGoals()
 
     except rospy.ROSInterruptException:
         pass
