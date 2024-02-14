@@ -140,7 +140,7 @@ class TurtleBot:
                     drive_to_goal = False
                     self.add_entry(self.skippedGoals,currGoal)
 
-                if len(self.easyGoals) == 0:
+                if len(self.goalArray) == 0:
                     return # no more positions in the list
 
 
@@ -155,6 +155,7 @@ class TurtleBot:
     def driveSkippedGoals(self):
         print('Skipped Goals start')
         self.navigate_points(self.skippedGoals)
+        self.skippedGoals = [] # reset the skipped Goals, now the goals will be skipped for real
 
 
 
