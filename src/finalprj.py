@@ -13,6 +13,7 @@ class TurtleBot:
         rospy.init_node('point_navigator', anonymous=True)
         self.hardGoals = hard
         self.easyGoals = easy
+        self.skippedGoals = []
         self.move_base = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         self.move_base.wait_for_server(rospy.Duration(5))
         self.selfpos_subscriber = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.callback_selfpos, queue_size=1)
@@ -103,6 +104,11 @@ class TurtleBot:
             if item == entry:
                 array.remove(item)
                 return
+    def add_entry(self, array, entry):
+        for item in array:
+            if item == entry:
+                array.append(item)
+                return
 
     def navigate_points(self,goalArray):
         count = 0
@@ -132,7 +138,7 @@ class TurtleBot:
 
                 if retry_count >= 3: # cancel goal after 3 retries
                     drive_to_goal = False
-                    self.remove_entry(goalArray,currGoal)
+                    self.add_entry(self.skippedGoals,currGoal)
 
                 if len(self.easyGoals) == 0:
                     return # no more positions in the list
@@ -145,6 +151,10 @@ class TurtleBot:
     def driveHardGoals(self):
         print('Hard Goals start')
         self.navigate_points(self.hardGoals)
+
+    def driveSkippedGoals(self):
+        print('Skipped Goals start')
+        self.navigate_points(self.skippedGoals)
 
 
 
@@ -168,9 +178,11 @@ if __name__ == '__main__':
 
         bot = TurtleBot(easyPositions,hardPositions)
         bot.driveHardGoals()
-        print(bot.hardGoals)
-        print(bot.easyGoals)
+        if(bot.skippedGoals)
+        bot.driveSkippedGoals()
         bot.driveEasyGoals()
+        if(bot.skippedGoals)
+        bot.driveSkippedGoals()
 
     except rospy.ROSInterruptException:
         pass
