@@ -57,20 +57,17 @@ class TurtleBot:
         search = True 
         count = Twist() 
         count.linear.x = 0
-        count.angular.z = -0.4
         self.publisher.publish(count)
     
-   
         while search:      
             
             freesport = 0
             for i in range(21):
                 
-                laser = self.scan.ranges[0 + i]
+                laser = self.scan.ranges[180 + i]
                 
 
                 if laser == 0 or laser > 0.40:
-                    
                     freesport += 1
 
                 if freesport >= 10:
@@ -78,7 +75,7 @@ class TurtleBot:
                     break
     
         rospy.sleep(0.5)
-        count.linear.x = 0.2
+        count.linear.x = -0.2
         count.angular.z = 0
         self.publisher.publish(count)
         rospy.sleep(1.5)
@@ -139,6 +136,7 @@ class TurtleBot:
                 if retry_count >= 3: # cancel goal after 3 retries
                     drive_to_goal = False
                     self.add_entry(self.skippedGoals,currGoal)
+                    print('skippedGoal')
 
                 if len(goalArray) == 0:
                     return # no more positions in the list
@@ -178,12 +176,15 @@ if __name__ == '__main__':
         ]
 
         bot = TurtleBot(easyPositions,hardPositions)
-        bot.driveHardGoals()
-        if(bot.skippedGoals):
-            bot.driveSkippedGoals()
         bot.driveEasyGoals()
-        if(bot.skippedGoals):
+        if(len(bot.skippedGoals) != 0):
+            print('skipped Easygoals:',bot.skippedGoals)
             bot.driveSkippedGoals()
+        bot.driveHardGoals()
+        if(len(bot.skippedGoals) != 0):
+            print('skipped Hardgoals:',bot.skippedGoals)
+            bot.driveSkippedGoals()
+
 
     except rospy.ROSInterruptException:
         pass
